@@ -2,7 +2,7 @@
 pragma solidity ^0.8.9;
 
 contract Condominio {
-    // @dev Endereço do síndico
+    // @info Endereço do síndico
     address public sindico;
 
     struct Unidade {
@@ -10,27 +10,29 @@ contract Condominio {
         address autorizado;
     }
 
+    // @info Mapeamento de unidades
     mapping(uint256 => Unidade) public unidades;
 
-    // @dev Modificador para somente sindico
+    // @info Modificador para somente sindico
     modifier somenteSindico() {
         require(msg.sender == sindico, "Somente sindico");
         _;
     }
 
-    // @dev Evento de mudança de síndico
+    // @info Evento de mudança de síndico
     event NovoSindico(
         address indexed sindicoAntigo,
         address indexed sindicoNovo
     );
 
-    // @dev Evento de adição de unidade
+    // @info Evento de adição de unidade
     event UnidadeAdicionada(
         uint256 indexed unidade,
         address indexed morador,
         address indexed sindico
     );
 
+    // @info Evento de atualização de morador da unidade
     event MoradorAtualizado(
         uint256 indexed unidade,
         address indexed moradorAntigo,
@@ -38,36 +40,42 @@ contract Condominio {
         address sindico
     );
 
-    // @dev Evento de remoção de unidade
+    // @info Evento de remoção de unidade
     event UnidadeRemovida(uint256 indexed unidade, address indexed sindico);
 
-    // @dev Evento de autorização de endereço
+    // @info Evento de autorização de endereço
     event EnderecoAutorizado(
         uint256 indexed unidade,
         address indexed morador,
         address indexed autorizado
     );
 
-    // @dev Evento de desautorização de endereço
+    // @info Evento de desautorização de endereço
     event EnderecoDesautorizado(
         uint256 indexed unidade,
         address indexed morador,
-        address indexed autorizado
+        address indexed antigoAutorizado
     );
 
-    // @dev O deployer do contrato é o síndico
+    // @info Evento de auto desautorização
+    event EnderecoDesautorizouSe(
+        uint256 indexed unidade,
+        address indexed antigoAutorizado
+    );
+
+    // @info O deployer do contrato é o síndico
     constructor() {
         _mudarSindico(msg.sender);
     }
 
-    // @dev Função para mudar o síndico
+    // @info Função para mudar o síndico
+    // @dev Acionada somente pelo síndico atual
     // @param _novoSindico Endereço do novo síndico
     function mudarSindico(address _novoSindico) external somenteSindico {
         _mudarSindico(_novoSindico);
     }
 
-    // @dev Função interna para mudar o síndico
-    // @dev Essa função emite o evento
+    // @info Função interna para mudar o síndico
     // @param _novoSindico Endereço do novo síndico
     function _mudarSindico(address _novoSindico) internal {
         // @dev Atribui o novo síndico
@@ -123,7 +131,10 @@ contract Condominio {
     // @dev Somente o síndico pode remover uma unidade
     // @param _unidade Número da unidade
     function removerUnidade(uint256 _unidade) public somenteSindico {
-        require(unidades[_unidade].morador != address(0), "Unidade inexistente");
+        require(
+            unidades[_unidade].morador != address(0),
+            "Unidade inexistente"
+        );
 
         // @dev Remove a unidade
         delete unidades[_unidade];
@@ -140,17 +151,26 @@ contract Condominio {
         // @dev Recupera a unidade
         Unidade storage unidade = unidades[_unidade];
 
+        // @dev Só autoriza se a unidade existir
+        require(unidade.morador != address(0), "Unidade inexistente");
+
         // @dev Verifica se o morador é o msg.sender
         require(unidade.morador == msg.sender, "Somente morador");
 
+        // @dev Só autoriza se o endereço for válido
         require(_autorizado != address(0), "Endereco invalido");
 
-        require(_autorizado == unidades[_unidade].morador, "Morador nao pode autorizar morador");
-
-        require(_autorizado != unidades[_unidade].autorizado, "Endereco ja autorizado");
+        // @dev Só autoriza se não for o próprio morador
+        require(
+            _autorizado != unidades[_unidade].morador,
+            "Morador nao pode se autorizar"
+        );
 
         // @dev Só autoriza se não estiver autorizado
-        require(unidade.autorizado != _autorizado, "Endereco ja autorizado");
+        require(
+            _autorizado != unidades[_unidade].autorizado,
+            "Endereco ja autorizado"
+        );
 
         // @dev Autoriza o endereço
         unidade.autorizado = _autorizado;
@@ -163,24 +183,23 @@ contract Condominio {
     // @dev Somente o morador pode desautorizar um endereço
     // @param _unidade Número da unidade
     // @param _autorizado Endereço a ser desautorizado
-    function desautorizarEndereco(
-        uint256 _unidade,
-        address _autorizado
-    ) public {
+    function desautorizarEndereco(uint256 _unidade) public {
         // @dev Recupera a unidade
         Unidade storage unidade = unidades[_unidade];
+
+        // @dev Só autoriza se a unidade existir
+        require(unidade.morador != address(0), "Unidade inexistente");
 
         // @dev Verifica se o morador é o msg.sender
         require(unidade.morador == msg.sender, "Somente morador");
 
-        // @dev Só desautoriza se estiver autorizado
-        require(unidade.autorizado == _autorizado, "Endereco nao autorizado");
+        address antigoAutorizado = unidade.autorizado;
 
         // @dev Desautoriza o endereço
         unidade.autorizado = address(0);
 
         // @dev Emite o evento de desautorização de endereço
-        emit EnderecoDesautorizado(_unidade, msg.sender, _autorizado);
+        emit EnderecoDesautorizado(_unidade, msg.sender, antigoAutorizado);
     }
 
     // @info Função para desautorizar-se
@@ -190,6 +209,9 @@ contract Condominio {
         // @dev Recupera a unidade
         Unidade storage unidade = unidades[_unidade];
 
+        // @dev Só autoriza se a unidade existir
+        require(unidade.morador != address(0), "Unidade inexistente");
+
         // @dev Verifica se o autorizado é o msg.sender
         require(unidade.autorizado == msg.sender, "Somente autorizado");
 
@@ -197,7 +219,7 @@ contract Condominio {
         unidade.autorizado = address(0);
 
         // @dev Emite o evento de desautorização de endereço
-        emit EnderecoDesautorizado(_unidade, unidade.morador, msg.sender);
+        emit EnderecoDesautorizouSe(_unidade, msg.sender);
     }
 
     // @info Função para retornar o votante (morador ou autorizado) de uma unidade
