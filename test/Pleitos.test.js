@@ -6,7 +6,7 @@ async function deploy(name, ...params) {
   return await Contract.deploy(...params).then((f) => f.deployed());
 }
 
-describe("Condominio", function () {
+describe("Pleitos", function () {
   before(async function () {
     [
       sindico,
@@ -18,12 +18,9 @@ describe("Condominio", function () {
       ...addrs
     ] = await ethers.getSigners();
 
-    // Conta do síndico
-    console.log("Conta do Síndico: ", sindico.address);
-
     // Deploy do contrato de Condominio
     condominio = await deploy("Condominio");
-    console.log("Condominio instalado em", condominio.address, "\n");
+    console.log("Condominio instalado em", condominio.address);
 
     // Deploy do contrato de Pleitos
     pleito = await deploy("Pleitos", condominio.address);
@@ -108,7 +105,6 @@ describe("Condominio", function () {
     it("Deve retornar resultado após o encerramento do pleito", async function () {
       let tempoFuturo = (await time.latest()) + UMA_SEMANA + 1;
       await time.increaseTo(tempoFuturo);
-
       expect(await pleito.resultado(0)).to.equal("Empate");
     });
   });
