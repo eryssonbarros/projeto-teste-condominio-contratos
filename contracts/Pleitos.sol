@@ -87,6 +87,10 @@ contract Pleitos {
         }
     }
 
+    function votou(uint256 _pleitoId, uint256 _unidade) external view returns (bool) {
+        return pleitos[_pleitoId].votos[_unidade];
+    }
+
     // @info Resultado do pleito
     function resultado(uint256 _pleitoId) public view returns (string memory) {
         require(
