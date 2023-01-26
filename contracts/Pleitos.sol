@@ -94,7 +94,7 @@ contract Pleitos {
     // @info Resultado do pleito
     function resultado(uint256 _pleitoId) public view returns (string memory) {
         require(
-            pleitos[_pleitoId].votosSim > 0 && pleitos[_pleitoId].votosNao > 0,
+            pleitos[_pleitoId].votosSim > 0 || pleitos[_pleitoId].votosNao > 0,
             "Pleito sem votos"
         );
         
