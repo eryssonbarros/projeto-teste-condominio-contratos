@@ -7,5 +7,6 @@
   "function pleitoId() view returns (uint256)",
   "function pleitos(uint256) view returns (uint256, string, uint256, uint256, uint256, uint256)",
   "function resultado(uint256) view returns (string)",
-  "function vota(uint256,uint256,bool)"
+  "function vota(uint256,uint256,bool)",
+  "function votou(uint256,uint256) view returns (bool)"
 ]
