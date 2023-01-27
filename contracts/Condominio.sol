@@ -144,7 +144,7 @@ contract Condominio {
         );
 
         // @dev Remove a unidade
-        delete enderecos[unidades[_unidade].morador];
+        delete moradores[unidades[_unidade].morador];
         delete unidades[_unidade];
 
         // @dev Emite o evento de remoção de unidade
