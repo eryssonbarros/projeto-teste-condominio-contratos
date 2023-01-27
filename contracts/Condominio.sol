@@ -12,6 +12,7 @@ contract Condominio {
 
     // @info Mapeamento de unidades
     mapping(uint256 => Unidade) public unidades;
+    mapping(address => uint256) public enderecos;
 
     // @info Modificador para somente sindico
     modifier somenteSindico() {
@@ -96,9 +97,11 @@ contract Condominio {
         require(_unidade > 0, "Unidade invalida");
         require(_morador != address(0), "Morador invalido");
         require(unidades[_unidade].morador == address(0), "Unidade existente");
+        require(enderecos[_morador] == 0, "Morador ja esta adicionado a outra unidade");
 
         // @dev Adiciona a unidade
         unidades[_unidade] = Unidade(_morador, address(0));
+        enderecos[_morador] = _unidade;
 
         // @dev Emite o evento de adição de unidade
         emit UnidadeAdicionada(_unidade, _morador, msg.sender);
@@ -117,6 +120,8 @@ contract Condominio {
 
         // @dev Atualiza o morador
         unidades[_unidade].morador = _moradorNovo;
+        enderecos[_moradorNovo] = _unidade;
+        delete enderecos[moradorAntigo];
 
         // @dev Emite o evento de atualização de morador
         emit MoradorAtualizado(
@@ -137,6 +142,7 @@ contract Condominio {
         );
 
         // @dev Remove a unidade
+        delete enderecos[unidades[_unidade].morador];
         delete unidades[_unidade];
 
         // @dev Emite o evento de remoção de unidade
