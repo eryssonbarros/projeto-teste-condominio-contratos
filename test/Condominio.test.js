@@ -237,5 +237,46 @@ describe("Condominio", function () {
         );
       });
     });
+
+    describe("Adicionando e removendo address do mapping enderecos", function (){
+
+      it("Deve adicionar nova unidade 999 para o endereço addrs[10]", async function (){
+        await condominio.connect(sindico).adicionarUnidade(999, addrs[10].address)
+      })
+
+      it("Deve ser revertido 1000 pois o addrs[10] já tem unidade", async function (){
+        await expect(condominio.connect(sindico).adicionarUnidade(1000, addrs[10].address)).to.be.revertedWith("Morador ja esta adicionado a outra unidade");
+      })
+
+      it("Sindico deve atualizar unidade 999 para o endereço addrs[11]", async function (){
+        await condominio.connect(sindico).atualizarMorador(999, addrs[11].address)
+      })
+
+      it("Addrs[10] deve estar sem unidade", async function (){        
+        expect(await condominio.connect(sindico).enderecos(addrs[10].address)).to.equal(0)        
+      })
+
+      it("Addrs[11] deve estar com a unidade 999", async function (){        
+        expect(await condominio.connect(sindico).enderecos(addrs[11].address)).to.equal(999)        
+      })
+
+      it("Sindico deve atualizar unidade 999 para o endereço addrs[10]", async function (){
+          await condominio.connect(sindico).atualizarMorador(999, addrs[10].address)
+      })
+
+      it("Addrs[10] deve estar com a unidade 999", async function (){        
+        expect(await condominio.connect(sindico).enderecos(addrs[10].address)).to.equal(999)        
+      })
+
+      it("Sindico deve remover unidade 999", async function (){
+        await condominio.connect(sindico).removerUnidade(999)
+      })
+
+      it("Addrs[10] deve estar sem unidade", async function (){        
+        expect(await condominio.connect(sindico).enderecos(addrs[10].address)).to.equal(0)        
+      })
+
+    })
+
   });
 });
