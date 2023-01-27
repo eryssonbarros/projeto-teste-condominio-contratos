@@ -36,7 +36,7 @@ contract Condominio {
     );
 
     // @info Evento de atualização de morador da unidade
-    event MoradorAtualizado(image.png
+    event MoradorAtualizado(
         uint256 indexed unidade,
         address indexed moradorAntigo,
         address indexed moradorNovo,
