@@ -12,7 +12,7 @@
   "function autorizarEndereco(uint256,address)",
   "function desautorizarEndereco(uint256)",
   "function desautorizarSe(uint256)",
-  "function enderecos(address) view returns (uint256)",
+  "function moradores(address) view returns (uint256)",
   "function mudarSindico(address)",
   "function removerUnidade(uint256)",
   "function retornaVotante(uint256) view returns (address)",
