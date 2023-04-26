@@ -5,7 +5,7 @@ import "./Condominio.sol";
 
 contract Pleitos {
     // @info Endereço do contrato de condominio
-    Condominio public condominio;
+    Condominio public immutable condominio;
 
     // @info Id do pleito, incrementável
     uint256 public pleitoId;
@@ -111,4 +111,5 @@ contract Pleitos {
 
         return "Empate";
     }
+        
 }
